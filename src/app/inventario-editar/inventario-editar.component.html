@@ -1,0 +1,91 @@
+<main>
+    <div class="container d-flex justify-content-center align-items-center min-vh-100">
+      <div class="row w-100">
+        <div class="col-lg-6 col-md-8 col-sm-12 mx-auto">
+          <h1 class="text-center">Inventario</h1>
+          <p class="lead text-center">Crear nuevo ítem</p>
+          <form (ngSubmit)="onSubmit()" #form="ngForm" class="p-4 border rounded bg-light shadow-sm">
+            <div class="mb-3">
+              <label for="name" class="form-label">Nombre</label>
+              <input type="text" 
+                     class="form-control" 
+                     id="name" 
+                     [(ngModel)]="producto.name" 
+                     name="name" 
+                     maxlength="50" 
+                     required 
+                     #nameField="ngModel">
+              <div *ngIf="nameField.invalid" class="text-danger">
+                <small *ngIf="nameField.errors?.['required']">El nombre es obligatorio.</small>
+                <small *ngIf="nameField.errors?.['maxlength']">El nombre no puede tener más de 50 caracteres.</small>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="category" class="form-label">Categoría</label>
+                <select class="form-control" 
+                        id="category" 
+                        [(ngModel)]="producto.category" 
+                        name="category" 
+                        required 
+                        #categoryField="ngModel">
+                <option value="Insumo">Insumo</option>
+                <option value="Repuesto">Repuesto</option>
+                </select>
+              <div *ngIf="categoryField.invalid" class="text-danger">
+                <small>La categoría es obligatoria.</small>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="quantity" class="form-label">Cantidad</label>
+              <input type="number" 
+                     class="form-control" 
+                     id="quantity" 
+                     [(ngModel)]="producto.quantity" 
+                     name="quantity" 
+                     min="0" 
+                     required 
+                     #quantityField="ngModel">
+              <div *ngIf="quantityField.invalid" class="text-danger">
+                <small *ngIf="quantityField.errors?.['required']">La cantidad es obligatoria.</small>
+                <small *ngIf="quantityField.errors?.['min']">La cantidad debe ser mayor o igual a 1.</small>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="price" class="form-label">Precio</label>
+              <input type="number" 
+                     class="form-control" 
+                     id="price" 
+                     [(ngModel)]="producto.price" 
+                     name="price" 
+                     pattern="^[0-9]+$" 
+                     required 
+                     #priceField="ngModel">
+              <div *ngIf="priceField.invalid" class="text-danger">
+                <small *ngIf="priceField.errors?.['required']">El precio es obligatorio.</small>
+                <small *ngIf="priceField.errors?.['pattern']">El precio debe ser un número válido.</small>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="description" class="form-label">Descripción</label>
+              <input type="text" 
+                     class="form-control" 
+                     id="description" 
+                     [(ngModel)]="producto.description" 
+                     name="description" 
+                     maxlength="15" 
+                     required 
+                     #descriptionField="ngModel">
+              <div *ngIf="descriptionField.invalid" class="text-danger">
+                <small *ngIf="descriptionField.errors?.['required']">La descripción es obligatoria.</small>
+                <small *ngIf="descriptionField.errors?.['maxlength']">La descripción no puede tener más de 15 caracteres.</small>
+              </div>
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Guardar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+  

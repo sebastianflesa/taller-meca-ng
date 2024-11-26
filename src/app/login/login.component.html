@@ -1,0 +1,58 @@
+<main>
+    <div class="container d-flex justify-content-center align-items-center min-vh-100">
+      <div class="row w-100">
+        <div class="col-lg-6 col-md-8 col-sm-12 mx-auto">
+          <div class="card shadow-lg border-0">
+            <div class="card-body p-5">
+              <h1 class="text-center mb-4">Acceder</h1>
+              <p class="lead text-center text-muted">Ingresar al sistema de inventario</p>
+              <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+                <div class="mb-3">
+                  <label for="username" class="form-label">Nombre de usuario</label>
+                  <input
+                    type="text"
+                    id="username"
+                    formControlName="username"
+                    class="form-control"
+                    placeholder="Ingrese su nombre de usuario"
+                  />
+                  <div *ngIf="formularioControls['username'].touched && formularioControls['username'].invalid" class="text-danger">
+                    <small *ngIf="formularioControls['username'].errors?.['required']">El nombre de usuario es requerido.</small>
+                    <small *ngIf="formularioControls['username'].errors?.['minlength']">
+                      El nombre de usuario debe tener al menos 3 caracteres.
+                    </small>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="password" class="form-label">Contraseña</label>
+                  <input
+                    type="password"
+                    id="password"
+                    formControlName="password"
+                    class="form-control"
+                    placeholder="Ingrese su contraseña"
+                  />
+                  <div *ngIf="formularioControls['password'].touched && formularioControls['password'].invalid" class="text-danger">
+                    <small *ngIf="formularioControls['password'].errors?.['required']">La contraseña es requerida.</small>
+                    <small *ngIf="formularioControls['password'].errors?.['minlength']">
+                      La contraseña debe tener al menos 6 caracteres.
+                    </small>
+                  </div>
+                </div>
+  
+                <div class="d-grid">
+                  <button type="submit" class="btn btn-primary btn-lg" [disabled]="loginForm.invalid">
+                    Iniciar Sesión
+                  </button>
+                </div>
+                <div class="text-center mt-4">
+                  <a [routerLink]="['/login/registro']" class="text-decoration-none text-primary">Registrarse</a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  

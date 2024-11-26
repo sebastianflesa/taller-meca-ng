@@ -1,0 +1,30 @@
+/* Configuraciones adicionales para tres tamaños distintos */
+@media (max-width: 576px) {
+  /* Pequeño */
+  .navbar-brand {
+    font-size: 1rem;
+  }
+  .nav-link {
+    font-size: 0.9rem;
+  }
+}
+
+@media (min-width: 577px) and (max-width: 992px) {
+  /* Mediano */
+  .navbar-brand {
+    font-size: 1.2rem;
+  }
+  .nav-link {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 993px) {
+  /* Grande */
+  .navbar-brand {
+    font-size: 1.5rem;
+  }
+  .nav-link {
+    font-size: 1.2rem;
+  }
+}

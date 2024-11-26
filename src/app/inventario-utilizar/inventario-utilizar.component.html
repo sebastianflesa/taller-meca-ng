@@ -1,0 +1,55 @@
+<main>
+    <div class="container d-flex justify-content-center align-items-center min-vh-100">
+      <div class="row w-100">
+        <div class="col-lg-6 col-md-8 col-sm-12 mx-auto">
+          <h1 class="text-center">Inventario</h1>
+          <p class="lead text-center">Descontar de stock</p>
+          <form (ngSubmit)="onSubmit()" #form="ngForm" class="p-4 border rounded bg-light shadow-sm">
+            <div class="mb-3">
+              <label for="name" class="form-label">Nombre</label>
+              <input type="text" 
+                     class="form-control" 
+                     id="name" 
+                     [(ngModel)]="producto.name" 
+                     name="name" 
+                     maxlength="15" 
+                     required 
+                     disabled="true"
+                     #nameField="ngModel">
+              <div *ngIf="nameField.invalid" class="text-danger">
+                <small *ngIf="nameField.errors?.['required']">El nombre es obligatorio.</small>
+                <small *ngIf="nameField.errors?.['maxlength']">El nombre no puede tener más de 15 caracteres.</small>
+              </div>
+            </div>
+            
+          
+            <div class="mb-3">
+              <label for="quantity" class="form-label">Cantidad</label>
+              <input type="number" 
+                     class="form-control" 
+                     id="quantity" 
+                     [(ngModel)]="producto.quantity" 
+                     name="quantity" 
+                     min="0"
+                     max="{{max_stock}}" 
+                     required 
+                     
+                     #quantityField="ngModel">
+              <div *ngIf="quantityField.invalid" class="text-danger">
+                <small *ngIf="quantityField.errors?.['required']">La cantidad es obligatoria.</small>
+                <small *ngIf="quantityField.errors?.['min']">La cantidad debe ser mayor o igual a 1.</small>
+                <small *ngIf="quantityField.errors?.['max']">La cantidad debe ser mayor o igual a {{max_stock}}.</small>
+              </div>
+            </div>
+          
+
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-success" [disabled]="form.invalid">Actualizar Stock</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+  

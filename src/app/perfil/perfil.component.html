@@ -1,0 +1,78 @@
+<main>
+    <div class="container d-flex justify-content-center align-items-center min-vh-100">
+      <div class="row w-100">
+        <div class="col-lg-6 col-md-8 col-sm-12 mx-auto">
+          <h1 class="text-center">Mi Perfil</h1>
+          <p class="lead text-center">Modifica tu informacion de perfil</p>
+          <form  (ngSubmit)="updatePerfil()" #form="ngForm" class="p-4 border rounded bg-light shadow-sm">
+            <div class="mb-3">
+              <label for="name" class="form-label">Nombre de usuario</label>
+              <input type="text" 
+                     class="form-control" 
+                     id="username" 
+                     [(ngModel)]="username" 
+                     name="username" 
+                     maxlength="15" 
+                     required 
+                     #usernameField="ngModel">
+              <div *ngIf="usernameField.invalid" class="text-danger">
+                <small *ngIf="usernameField.errors?.['required']">El nombre de usuario es obligatorio.</small>
+                <small *ngIf="usernameField.errors?.['maxlength']">El nombre de usuario no puede tener más de 15 caracteres.</small>
+              </div>
+            </div>
+           
+            <div class="mb-3">
+                <label for="name" class="form-label">Correo</label>
+                <input type="email" 
+                       class="form-control" 
+                       id="correo" 
+                       [(ngModel)]="correo" 
+                       name="correo" 
+                       maxlength="50" 
+                       required 
+                       #correoField="ngModel">
+                <div *ngIf="correoField.invalid" class="text-danger">
+                  <small *ngIf="correoField.errors?.['required']">El correo es obligatorio.</small>
+                  <small *ngIf="correoField.errors?.['maxlength']">El correo no puede tener más de 50 caracteres.</small>
+                </div>
+              </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Contraseña</label>
+                    <input type="password" 
+                         class="form-control" 
+                         id="password" 
+                         [(ngModel)]="password" 
+                         name="password" 
+                         required 
+                         #passwordField="ngModel">
+                    <div *ngIf="passwordField.invalid" class="text-danger">
+                    <small *ngIf="passwordField.errors?.['required']">La contraseña es obligatoria.</small>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Confirmar Contraseña</label>
+                    <input type="password" 
+                         class="form-control" 
+                         id="password" 
+                         [(ngModel)]="confpassword" 
+                         name="confpassword" 
+                         required 
+                         #confpasswordField="ngModel">
+                    <div *ngIf="confpasswordField.invalid" class="text-danger">
+                    <small *ngIf="confpasswordField.errors?.['required']">La contraseña es obligatoria.</small>
+                    </div>
+                </div>
+
+
+           
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Guardar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+  
