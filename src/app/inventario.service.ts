@@ -1,5 +1,23 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { initializeApp } from "firebase/app";
+import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { catchError, map } from "rxjs/operators";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBQMp9Jf3xcssORoEwvlsqawecuSh7Or4Q",
+  authDomain: "taller-meca-bfcbe.firebaseapp.com",
+  projectId: "taller-meca-bfcbe",
+  storageBucket: "taller-meca-bfcbe.firebasestorage.app",
+  messagingSenderId: "641461907938",
+  appId: "1:641461907938:web:8272688ebfa374ad9849bb",
+  measurementId: "G-GD1SH7T4NK"
+};
+
+const app = initializeApp(firebaseConfig);
+const storage = getStorage(app);
+
 /**
  * @description
  * Servicio que maneja el inventario del taller
@@ -11,42 +29,12 @@ export class InventarioService {
   private inventarioSubject = new BehaviorSubject<any[]>([]);
   inventario$ = this.inventarioSubject.asObservable();
 
-  inventario = [
-    {
-      id: 1,
-      name: "Filtro de aceite",
-      category: "Repuestos",
-      quantity: 50,
-      price: "10000",
-      description: "Marca Chanchito feliz"
-    },
-    {
-      id: 2,
-      name: "Pastillas de freno",
-      category: "Repuestos",
-      quantity: 30,
-      price: "20000",
-      description: "Marca GTX"
-    },
-    {
-      id: 3,
-      name: "Aceite sintético",
-      category: "Insumos",
-      quantity: 100,
-      price: "15000",
-      description: "Castrol Edge 5w30"
-    },
-    {
-      id: 4,
-      name: "Paño de tela",
-      category: "Insumos",
-      quantity: 45,
-      price: "500",
-      description: "Marca generica"
-    }
-  ];
+  private url_inventario = "https://firebasestorage.googleapis.com/v0/b/taller-meca-bfcbe.firebasestorage.app/o/inventario.json?alt=media&token=3dd97bd9-3b03-470b-b8a2-87b681388cf9";
 
-  constructor() {
+  
+  inventario = [  ];
+
+  constructor(private http: HttpClient) {
     if (this.isLocalStorageAvailable() && !localStorage.getItem('inventario')) {
       this.setInventarioDefault(this.inventario);
     }
@@ -59,6 +47,10 @@ export class InventarioService {
   private loadInventario() {
     const storedInventario = this.getInventario();
     this.inventarioSubject.next(storedInventario);
+  }
+
+  getJsonData(): Observable<any> {
+    return this.http.get(this.url_inventario);
   }
 
   /**
@@ -89,43 +81,54 @@ export class InventarioService {
    * @param newItem 
    * @returns {void}
    */
-  addItemToInventario(newItem: any) {
-    if (this.isLocalStorageAvailable()) {
+ 
+addItemToInventario(newItem: any): void {
+  if (this.isLocalStorageAvailable()) {
+    try {
       let currentInventario = this.getInventario();
       if (!Array.isArray(currentInventario)) {
         currentInventario = [];
       }
-  
       let newId = 1;
       if (currentInventario.length > 0) {
         const lastItem = currentInventario[currentInventario.length - 1];
         newId = lastItem.id + 1;
       }
-  
       newItem.id = newId;
       currentInventario.push(newItem);
       localStorage.setItem('inventario', JSON.stringify(currentInventario));
       this.inventarioSubject.next(currentInventario);
-    } else {
-      console.error("LocalStorage no está disponible.");
+      this.actualizarArchivoEnBucket(currentInventario);
+      console.log("Elemento añadido correctamente al inventario.");
+    } catch (error) {
+      console.log("Error al añadir un elemento al inventario:", error);
     }
+  } else {
+    console.log("LocalStorage no está disponible.");
   }
+}
   /**
    * funcion que elimina un item del inventario
    * @param id 
    * @returns {void}
    */
-  deleteItemFromInventario(id: number) {
+  deleteItemFromInventario(id: number): void {
     if (this.isLocalStorageAvailable()) {
-      let currentInventario = this.getInventario();
-      if (!Array.isArray(currentInventario)) {
-        currentInventario = [];
+      try {
+        let currentInventario = this.getInventario();
+        if (!Array.isArray(currentInventario)) {
+          currentInventario = [];
+        }
+        currentInventario = currentInventario.filter((item: any) => item.id !== id);
+        localStorage.setItem('inventario', JSON.stringify(currentInventario));
+        this.inventarioSubject.next(currentInventario);
+        this.actualizarArchivoEnBucket(currentInventario);
+        console.log(`Elemento con ID ${id} eliminado correctamente.`);
+      } catch (error) {
+        console.log("Error al eliminar el elemento del inventario:", error);
       }
-      currentInventario = currentInventario.filter((item: any) => item.id !== id);
-      localStorage.setItem('inventario', JSON.stringify(currentInventario));
-      this.loadInventario();
     } else {
-      console.error("LocalStorage no está disponible.");
+      console.log("LocalStorage no está disponible.");
     }
   }
   /**
@@ -134,25 +137,34 @@ export class InventarioService {
    * @returns {void}
    */
 
-  updateItem(updatedItem: any) {
+  updateItem(updatedItem: any): void {
+    if (!updatedItem || typeof updatedItem.id === "undefined") {
+      console.error("El elemento actualizado debe tener un ID válido.");
+      return;
+    }
+  
     if (this.isLocalStorageAvailable()) {
-      let currentInventario = this.getInventario();
-      if (!Array.isArray(currentInventario)) {
-        currentInventario = [];
-      }
-
-      const index = currentInventario.findIndex((item: any) => item.id === updatedItem.id);
-      
-
-      if (index !== -1) {
-        currentInventario[index] = { ...currentInventario[index], ...updatedItem };
-        localStorage.setItem('inventario', JSON.stringify(currentInventario));
-        this.inventarioSubject.next(currentInventario);
-      } else {
-        console.error(`Elemento con ID ${updatedItem.id} no encontrado.`);
+      try {
+        let currentInventario = this.getInventario();
+        if (!Array.isArray(currentInventario)) {
+          currentInventario = [];
+        }
+        const index = currentInventario.findIndex((item: any) => item.id === updatedItem.id);
+  
+        if (index !== -1) {
+          currentInventario[index] = { ...currentInventario[index], ...updatedItem };
+          localStorage.setItem("inventario", JSON.stringify(currentInventario));
+          this.inventarioSubject.next(currentInventario);
+          console.log(`Elemento con ID ${updatedItem.id} actualizado correctamente.`);
+          this.actualizarArchivoEnBucket(currentInventario);
+        } else {
+          console.log(`Elemento con ID ${updatedItem.id} no encontrado en el inventario.`);
+        }
+      } catch (error) {
+        console.log("Error al actualizar el elemento en el inventario:", error);
       }
     } else {
-      console.error("LocalStorage no está disponible.");
+      console.log("LocalStorage no está disponible.");
     }
   }
   /**
@@ -160,7 +172,7 @@ export class InventarioService {
    * @param id 
    * @returns {any}
    */
-  getItemById(id: string) {
+  getItemById(id: string): Observable<any> {
     interface InventarioItem {
       id: number;
       name: string;
@@ -169,9 +181,19 @@ export class InventarioService {
       price: string;
       description: string;
     }
-    const currentInventario: InventarioItem[] = this.getInventario();
-    const itemEncontrado = currentInventario.find((item: InventarioItem) => item.id === Number(id));
-    return of(itemEncontrado)
+    return this.http.get<InventarioItem[]>(this.url_inventario).pipe(
+      map((inventario: InventarioItem[]) => {
+        const itemEncontrado = inventario.find((item) => item.id === Number(id));
+        if (itemEncontrado) {
+          return itemEncontrado;
+        } else {
+          return null;
+        }
+      }),
+      catchError((error) => {
+        return of(null);
+      })
+    );
   }
   /**
    * Función que verifica si localStorage está disponible
@@ -193,24 +215,62 @@ export class InventarioService {
    * @param quantity 
    * @returns {void}
    */
-  updateItemQuantity(id: number, quantity: number) {
-    if (this.isLocalStorageAvailable()) {
-      let currentInventario = this.getInventario();
-      if (!Array.isArray(currentInventario)) {
-        currentInventario = [];
-      }
-
-      const index = currentInventario.findIndex((item: any) => item.id === id);
-      
-      if (index !== -1) {
-        currentInventario[index].quantity = quantity;
-        localStorage.setItem('inventario', JSON.stringify(currentInventario));
-        this.inventarioSubject.next(currentInventario);
-      } else {
-        console.error(`Elemento con ID ${id} no encontrado.`);
-      }
-    } else {
+  updateItemQuantity(id: number, quantity: number): void {
+    if (!this.isLocalStorageAvailable()) {
       console.error("LocalStorage no está disponible.");
+      return;
+    }
+  
+    try {
+      this.getJsonData().subscribe({
+        next: (currentInventario: any[]) => {
+          if (!Array.isArray(currentInventario)) {
+            console.warn("El inventario está vacío o no es válido.");
+            currentInventario = [];
+          }
+  
+          currentInventario = currentInventario.map((item: any, index: number) => {
+            if (item.id == null || item.id === undefined) {
+              item.id = index + 1;
+            }
+            return item;
+          });
+  
+          const idNumerico = Number(id);
+  
+          const index = currentInventario.findIndex((item: any) => Number(item.id) === idNumerico);
+  
+          if (index !== -1) {
+            currentInventario[index].quantity = quantity;
+            localStorage.setItem('inventario', JSON.stringify(currentInventario));
+            this.inventarioSubject.next(currentInventario);
+            this.actualizarArchivoEnBucket(currentInventario);
+            console.log(`Cantidad del elemento con ID ${id} actualizada correctamente.`);
+          } else {
+            console.warn(`Elemento con ID ${id} no encontrado en el inventario.`);
+          }
+        },
+        error: (error) => {
+          console.error("Error al obtener el inventario desde el archivo JSON:", error);
+        },
+      });
+    } catch (error) {
+      console.error("Error al actualizar la cantidad del elemento:", error);
     }
   }
+
+  private actualizarArchivoEnBucket(inventario: any): void {
+    const archivoJSON = new Blob([JSON.stringify(inventario, null, 2)], { type: "application/json" });
+    const storageRef = ref(storage, "inventario.json");
+    uploadBytes(storageRef, archivoJSON)
+      .then((snapshot) => {
+        console.log("OK", snapshot.metadata);
+      })
+      .catch((error) => {
+        console.error("ERROR", error);
+      });
+  }
+
+  
+
 }

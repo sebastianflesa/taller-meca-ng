@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { InventarioService } from '../inventario.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
+import { provideHttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 /**
  * @description
@@ -14,6 +16,7 @@ import { AuthService } from '../auth.service';
 @Component({
   selector: 'app-inventario',
   standalone: true,
+  providers: [],
   imports: [CommonModule],
   templateUrl: './inventario.component.html',
   styleUrl: './inventario.component.css'
@@ -51,11 +54,26 @@ export class InventarioComponent implements OnInit {
     
   }
 
+  getDatosInventario() {
+    this.inventarioService.getJsonData().subscribe(
+      data => {
+        this.inventario = data;
+      },
+      error => {
+        console.error('Error al obtener el inventario', error);
+      }
+    );
+  }
+
   /**
-   * funcion que se ejecuta al iniciar el componente
+   * funcion que se ejecuta al iniciar el componente hace un get al bucket de inventario
    * @returns {void}
    */
   ngOnInit() {
+
+    this.getDatosInventario();
+
+    /*
     this.inventarioService.inventario$.subscribe({
       next: (data) => {
         console.log(data)
@@ -68,6 +86,7 @@ export class InventarioComponent implements OnInit {
         console.log('Suscripción completada');
       }
     });
+    */
 
     this.user_role = this.authService.getUserRole();
     console.log(this.user_role);
@@ -108,6 +127,7 @@ export class InventarioComponent implements OnInit {
     if(confirm("¿Estás seguro de que deseas eliminar este item?")) {
       this.inventarioService.deleteItemFromInventario(id);
       console.log('borrar' + id);
+      this.getDatosInventario();
     }
     
   }

@@ -1,0 +1,34 @@
+[
+    {
+      "id": 1,
+      "name": "Filtro de aceite",
+      "category": "Repuestos",
+      "quantity": 50,
+      "price": "10000",
+      "description": "Marca Chanchito feliz"
+    },
+    {
+      "id": 2,
+      "name": "Pastillas de freno",
+      "category": "Repuestos",
+      "quantity": 30,
+      "price": "20000",
+      "description": "Marca GTX"
+    },
+    {
+      "id": 3,
+      "name": "Aceite sintético",
+      "category": "Insumos",
+      "quantity": 100,
+      "price": "15000",
+      "description": "Castrol Edge 5w30"
+    },
+    {
+      "id": 4,
+      "name": "Paño de tela",
+      "category": "Insumos",
+      "quantity": 45,
+      "price": "500",
+      "description": "Marca generica"
+    }
+  ]

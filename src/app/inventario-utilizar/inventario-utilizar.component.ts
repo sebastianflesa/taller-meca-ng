@@ -47,21 +47,14 @@ ngOnInit(): void {
       next: (data: InventarioItem | undefined) => {
         if (data) {
           this.producto = data;
-          this.max_stock = this.producto.quantity;
+          this.id = data.id;
+          this.max_stock = data.quantity;
           console.log('Producto cargado:', data);
         } else {
-          console.error('Producto no encontrado.');
-          this.router.navigate(['/inventario']);
+          console.warn('Producto no encontrado');
         }
       },
-      error: (error: any) => {
-        console.error('Error al cargar el producto:', error);
-        this.router.navigate(['/inventario']);
-      }
     });
-  } else {
-    console.error('No se encontró el ID del producto.');
-    this.router.navigate(['/inventario']);
   }
 
 }
