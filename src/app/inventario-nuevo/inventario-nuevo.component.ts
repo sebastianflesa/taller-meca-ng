@@ -1,61 +1,56 @@
 import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms'; 
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { InventarioService } from '../inventario.service';
 import { Router } from '@angular/router';
+import { InventarioService } from '../inventario.service';
 
-/**
- * @description
- * Componente para crear un nuevo producto en el inventario.
- * 
- */
 @Component({
   selector: 'app-inventario-nuevo',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule
-  ],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './inventario-nuevo.component.html',
-  styleUrls: ['./inventario-nuevo.component.css'] // Cambiado a styleUrls
+  styleUrls: ['./inventario-nuevo.component.css'],
 })
-
 export class InventarioNuevoComponent implements OnInit {
-  name: string = '';
-  category: string = '';
-  quantity: number | null = null;
-  price: number | null = null;
-  description: string = '';
-  nuevoProducto: any;
+  inventarioForm: FormGroup;
 
-  constructor(private inventarioService: InventarioService,private router: Router ) { }
-  /**
-   * Función que se ejecuta al iniciar el componente
-   * @returns {void}
-   */
+  constructor(
+    private fb: FormBuilder,
+    private inventarioService: InventarioService,
+    private router: Router
+  ) {
+    this.inventarioForm = this.fb.group({
+      name: ['', [Validators.required, Validators.maxLength(50)]],
+      category: ['', Validators.required],
+      quantity: [null, [Validators.required, Validators.min(1)]],
+      price: [null, [Validators.required, Validators.pattern(/^[0-9]+$/)]],
+      description: ['', [Validators.required, Validators.maxLength(15)]],
+    });
+  }
+
   ngOnInit(): void {
     console.log('Componente InventarioNuevoComponent inicializado.');
   }
+
   /**
-   * Función que se ejecuta al enviar el formulario
-   * @returns {void}
+   * Maneja el envío del formulario
    */
-  onSubmit() {
-    if (this.name && this.category && this.quantity && this.price && this.description) {
-      this.nuevoProducto = {
-        name: this.name,
-        category: this.category,
-        quantity: this.quantity,
-        price: this.price,
-        description: this.description
-      };
-      this.inventarioService.addItemToInventario(this.nuevoProducto);
+  onSubmit(): void {
+    if (this.inventarioForm.valid) {
+      const nuevoProducto = this.inventarioForm.value;
+      this.inventarioService.addItemToInventario(nuevoProducto);
       alert('Producto agregado');
-      console.log('Producto agregado:', this.nuevoProducto);
+      console.log('Producto agregado:', nuevoProducto);
       this.router.navigate(['/inventario']);
-      
     } else {
-      console.error('Todos los campos son obligatorios');
+      console.error('Todos los campos son obligatorios y deben ser válidos');
     }
+  }
+
+  /**
+   * Devuelve un control del formulario para simplificar las validaciones en la plantilla
+   */
+  get control() {
+    return this.inventarioForm.controls;
   }
 }

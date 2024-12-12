@@ -40,6 +40,7 @@ export class InventarioComponent implements OnInit {
   }
   inventario: any;
   user_role: any;
+  loading: boolean = true;
   
   /**
    * @param {number} id 
@@ -58,6 +59,7 @@ export class InventarioComponent implements OnInit {
     this.inventarioService.getJsonData().subscribe(
       data => {
         this.inventario = data;
+        this.loading = false;
       },
       error => {
         console.error('Error al obtener el inventario', error);

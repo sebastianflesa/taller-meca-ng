@@ -14,7 +14,7 @@
             </ng-container>
            
           </div>
-
+    
     <table class="table table-striped">
         
         <thead>
@@ -30,7 +30,11 @@
         </thead>
         
         <tbody>
-            <tr *ngFor="let item of inventario">
+            <tr *ngIf="loading">
+                <td colspan="7" class="text-center">Cargando..</td>
+            </tr>
+
+            <tr *ngFor="let item of inventario" [ngClass]="{'table-danger': item.quantity === 0}">
                 <th scope="row">{{item.id}}</th>
                 <td>{{item.name}}</td>
                 <td>{{item.category}}</td>
@@ -56,7 +60,6 @@
                 </td>
             </tr>
         </tbody>
-
     </table>
     </div>
     
